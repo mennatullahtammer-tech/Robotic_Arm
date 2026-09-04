@@ -20,357 +20,134 @@
 
 
 /* =========================================================
- *                  CURRENT ARM STATE
+ *                 CURRENT ARM STATE
  * ========================================================= */
 
 static u8 Joint1_Angle = 0;
 static u8 Joint2_Angle = 90;
 static u8 Joint3_Angle = 180;
 
+static u8 Gripper_State = 0;
+
 
 /* =========================================================
- *                  LCD HOME
+ *                    LCD HOME
  * ========================================================= */
 
 static void LCD_ShowHome(void)
 {
     LCD_Clear_Screen();
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
+    LCD_Send_String((u8*)"1:J1 2:J2 3:J3");
 
-    LCD_Send_String(
-        (u8*)"1:J1 2:J2 3:J3"
-    );
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"4:B 5:G 6:S 7:SV"
-    );
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
+    LCD_Send_String((u8*)"4:B 5:G 6:S");
 }
 
 
 /* =========================================================
- *                  LCD JOINT
+ *                  LCD JOINT SCREEN
  * ========================================================= */
 
-static void LCD_ShowJoint(
-    u8 JointNumber,
-    u8 Angle
-)
+static void LCD_ShowJoint(u8 JointNumber, u8 Angle)
 {
     LCD_Clear_Screen();
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
 
-    LCD_Send_String(
-        (u8*)"Joint "
-    );
+    LCD_Send_String((u8*)"JOINT ");
 
-    LCD_Send_Number(
-        JointNumber
-    );
+    LCD_Send_Number(JointNumber);
 
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
 
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
+    LCD_Send_String((u8*)"ANGLE:");
 
-    LCD_Send_String(
-        (u8*)"Angle = "
-    );
+    LCD_Send_Number(Angle);
 
-    LCD_Send_Number(
-        Angle
-    );
+    LCD_Send_String((u8*)" +/-");
 }
 
 
 /* =========================================================
- *                  LCD BASE
+ *                   LCD BASE SCREEN
  * ========================================================= */
 
 static void LCD_ShowBase(void)
 {
+    u16 BaseAngle;
+
+    BaseAngle =
+        (u16)STEPPER_s16GetCurrentAngle();
+
     LCD_Clear_Screen();
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
 
-    LCD_Send_String(
-        (u8*)"BASE CONTROL"
-    );
+    LCD_Send_String((u8*)"BASE:");
 
+    LCD_Send_Number(BaseAngle);
 
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
 
-    LCD_Send_String(
-        (u8*)"2:CW 8:CCW =:Exit"
-    );
+    LCD_Send_String((u8*)"+/- MOVE  = EXIT");
 }
 
 
 /* =========================================================
- *                  LCD GRIPPER
+ *                 LCD GRIPPER SCREEN
  * ========================================================= */
 
 static void LCD_ShowGripper(void)
 {
     LCD_Clear_Screen();
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
 
-    LCD_Send_String(
-        (u8*)"GRIPPER"
-    );
+    LCD_Send_String((u8*)"GRIPPER");
 
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
 
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"PB0 OPEN PB1 CLOSE"
-    );
+    if(Gripper_State == 0)
+    {
+        LCD_Send_String((u8*)"OPEN");
+    }
+    else
+    {
+        LCD_Send_String((u8*)"CLOSED");
+    }
 }
 
 
 /* =========================================================
- *                  LCD STATUS
+ *                  LCD ARM STATUS
  * ========================================================= */
 
 static void LCD_ShowArmStatus(void)
 {
     u16 BaseAngle;
 
-
     BaseAngle =
         (u16)STEPPER_s16GetCurrentAngle();
 
-
     LCD_Clear_Screen();
 
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
+    LCD_Send_String((u8*)"J1:");
+    LCD_Send_Number(Joint1_Angle);
 
-    LCD_Send_String(
-        (u8*)"J1="
-    );
+    LCD_Send_String((u8*)" J2:");
+    LCD_Send_Number(Joint2_Angle);
 
-    LCD_Send_Number(
-        Joint1_Angle
-    );
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
 
+    LCD_Send_String((u8*)"J3:");
+    LCD_Send_Number(Joint3_Angle);
 
-    LCD_Send_String(
-        (u8*)" J2="
-    );
-
-    LCD_Send_Number(
-        Joint2_Angle
-    );
-
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"J3="
-    );
-
-    LCD_Send_Number(
-        Joint3_Angle
-    );
-
-
-    LCD_Send_String(
-        (u8*)" B="
-    );
-
-    LCD_Send_Number(
-        BaseAngle
-    );
-
-
-    _delay_ms(1500);
-}
-
-
-/* =========================================================
- *                  SAVE SCREEN
- * ========================================================= */
-
-static void LCD_ShowSavePosition(u8 Position)
-{
-    LCD_Clear_Screen();
-
-
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"SAVE POSITION"
-    );
-
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"POSITION: "
-    );
-
-    LCD_Send_Number(
-        Position
-    );
-}
-
-
-/* =========================================================
- *                  LOAD SCREEN
- * ========================================================= */
-
-static void LCD_ShowLoadPosition(u8 Position)
-{
-    LCD_Clear_Screen();
-
-
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"LOAD POSITION"
-    );
-
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"POSITION: "
-    );
-
-    LCD_Send_Number(
-        Position
-    );
-}
-
-
-/* =========================================================
- *              SHOW LOADED POSITION
- * ========================================================= */
-
-static void LCD_ShowLoadedPosition(
-    u8 Position,
-    u8 J1,
-    u8 J2,
-    u8 J3,
-    u16 Base
-)
-{
-    LCD_Clear_Screen();
-
-
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"POS "
-    );
-
-    LCD_Send_Number(
-        Position
-    );
-
-    LCD_Send_String(
-        (u8*)" LOADED"
-    );
-
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"J1:"
-    );
-
-    LCD_Send_Number(
-        J1
-    );
-
-    LCD_Send_String(
-        (u8*)" J2:"
-    );
-
-    LCD_Send_Number(
-        J2
-    );
-
-
-    _delay_ms(1000);
-
-
-    LCD_Clear_Screen();
-
-
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"J3:"
-    );
-
-    LCD_Send_Number(
-        J3
-    );
-
-
-    LCD_Send_String(
-        (u8*)" B:"
-    );
-
-    LCD_Send_Number(
-        Base
-    );
-
+    LCD_Send_String((u8*)" B:");
+    LCD_Send_Number(BaseAngle);
 
     _delay_ms(1500);
 }
@@ -378,6 +155,10 @@ static void LCD_ShowLoadedPosition(
 
 /* =========================================================
  *                  JOINT 1 CONTROL
+ *
+ *                  +  -> INCREASE
+ *                  -  -> DECREASE
+ *                  =  -> SAVE / EXIT
  * ========================================================= */
 
 static void Control_Joint1(void)
@@ -385,62 +166,47 @@ static void Control_Joint1(void)
     u8 Key;
     u8 Angle;
 
-
     Angle = Joint1_Angle;
 
-
-    LCD_ShowJoint(
-        1,
-        Angle
-    );
-
+    LCD_ShowJoint(1, Angle);
 
     while(1)
     {
-        /* Gripper physical buttons remain active */
-
         GRIPPER_voidControl();
 
+        Key = KPD_u8GetPressed();
 
-        Key =
-            KPD_u8GetPressed();
-
-
-        if(Key == '2')
+        if(Key == '+')
         {
             if(Angle <= 170)
             {
                 Angle += 10;
 
-                SERVO_voidSetAngle1(
-                    Angle
-                );
+                SERVO_voidSetAngle1(Angle);
 
-                LCD_ShowJoint(
-                    1,
-                    Angle
-                );
+                Joint1_Angle = Angle;
+
+                LCD_ShowJoint(1, Angle);
             }
+
+            _delay_ms(200);
         }
 
-
-        else if(Key == '8')
+        else if(Key == '-')
         {
             if(Angle >= 10)
             {
                 Angle -= 10;
 
-                SERVO_voidSetAngle1(
-                    Angle
-                );
+                SERVO_voidSetAngle1(Angle);
 
-                LCD_ShowJoint(
-                    1,
-                    Angle
-                );
+                Joint1_Angle = Angle;
+
+                LCD_ShowJoint(1, Angle);
             }
-        }
 
+            _delay_ms(200);
+        }
 
         else if(Key == '=')
         {
@@ -448,9 +214,6 @@ static void Control_Joint1(void)
 
             break;
         }
-
-
-        _delay_ms(150);
     }
 }
 
@@ -464,60 +227,47 @@ static void Control_Joint2(void)
     u8 Key;
     u8 Angle;
 
-
     Angle = Joint2_Angle;
 
-
-    LCD_ShowJoint(
-        2,
-        Angle
-    );
-
+    LCD_ShowJoint(2, Angle);
 
     while(1)
     {
         GRIPPER_voidControl();
 
+        Key = KPD_u8GetPressed();
 
-        Key =
-            KPD_u8GetPressed();
-
-
-        if(Key == '2')
+        if(Key == '+')
         {
             if(Angle <= 170)
             {
                 Angle += 10;
 
-                SERVO_voidSetAngle2(
-                    Angle
-                );
+                SERVO_voidSetAngle2(Angle);
 
-                LCD_ShowJoint(
-                    2,
-                    Angle
-                );
+                Joint2_Angle = Angle;
+
+                LCD_ShowJoint(2, Angle);
             }
+
+            _delay_ms(200);
         }
 
-
-        else if(Key == '8')
+        else if(Key == '-')
         {
             if(Angle >= 10)
             {
                 Angle -= 10;
 
-                SERVO_voidSetAngle2(
-                    Angle
-                );
+                SERVO_voidSetAngle2(Angle);
 
-                LCD_ShowJoint(
-                    2,
-                    Angle
-                );
+                Joint2_Angle = Angle;
+
+                LCD_ShowJoint(2, Angle);
             }
-        }
 
+            _delay_ms(200);
+        }
 
         else if(Key == '=')
         {
@@ -525,9 +275,6 @@ static void Control_Joint2(void)
 
             break;
         }
-
-
-        _delay_ms(150);
     }
 }
 
@@ -541,60 +288,47 @@ static void Control_Joint3(void)
     u8 Key;
     u8 Angle;
 
-
     Angle = Joint3_Angle;
 
-
-    LCD_ShowJoint(
-        3,
-        Angle
-    );
-
+    LCD_ShowJoint(3, Angle);
 
     while(1)
     {
         GRIPPER_voidControl();
 
+        Key = KPD_u8GetPressed();
 
-        Key =
-            KPD_u8GetPressed();
-
-
-        if(Key == '2')
+        if(Key == '+')
         {
             if(Angle <= 170)
             {
                 Angle += 10;
 
-                SERVO_voidSetAngle3(
-                    Angle
-                );
+                SERVO_voidSetAngle3(Angle);
 
-                LCD_ShowJoint(
-                    3,
-                    Angle
-                );
+                Joint3_Angle = Angle;
+
+                LCD_ShowJoint(3, Angle);
             }
+
+            _delay_ms(200);
         }
 
-
-        else if(Key == '8')
+        else if(Key == '-')
         {
             if(Angle >= 10)
             {
                 Angle -= 10;
 
-                SERVO_voidSetAngle3(
-                    Angle
-                );
+                SERVO_voidSetAngle3(Angle);
 
-                LCD_ShowJoint(
-                    3,
-                    Angle
-                );
+                Joint3_Angle = Angle;
+
+                LCD_ShowJoint(3, Angle);
             }
-        }
 
+            _delay_ms(200);
+        }
 
         else if(Key == '=')
         {
@@ -602,91 +336,96 @@ static void Control_Joint3(void)
 
             break;
         }
-
-
-        _delay_ms(150);
     }
 }
 
 
 /* =========================================================
- *                  BASE CONTROL
+ *                     BASE CONTROL
+ *
+ *                  +  -> CW 90
+ *                  -  -> CCW 90
+ *                  =  -> EXIT
  * ========================================================= */
 
 static void Control_Base(void)
 {
     u8 Key;
-
+    u16 BaseAngle;
 
     LCD_ShowBase();
-
 
     while(1)
     {
         GRIPPER_voidControl();
 
+        Key = KPD_u8GetPressed();
 
-        Key =
-            KPD_u8GetPressed();
-
-
-        if(Key == '2')
+        if(Key == '+')
         {
-            STEPPER_voidMoveAngleCW(
-                90
-            );
+            STEPPER_voidMoveAngleCW(90);
+
+            BaseAngle =
+                (u16)STEPPER_s16GetCurrentAngle();
+
+            LCD_ShowBase();
+
+            _delay_ms(200);
         }
 
-
-        else if(Key == '8')
+        else if(Key == '-')
         {
-            STEPPER_voidMoveAngleCCW(
-                90
-            );
-        }
+            STEPPER_voidMoveAngleCCW(90);
 
+            BaseAngle =
+                (u16)STEPPER_s16GetCurrentAngle();
+
+            LCD_ShowBase();
+
+            _delay_ms(200);
+        }
 
         else if(Key == '=')
         {
             break;
         }
-
-
-        _delay_ms(150);
     }
 }
 
 
 /* =========================================================
- *                  GRIPPER CONTROL
+ *                    GRIPPER CONTROL
  *
- * Physical buttons only
+ * Hardware buttons:
  *
  * PB0 -> OPEN
  * PB1 -> CLOSE
+ *
+ * Keypad:
+ *
+ * = -> EXIT
  * ========================================================= */
 
 static void Control_Gripper(void)
 {
     u8 Key;
 
-
     LCD_ShowGripper();
-
 
     while(1)
     {
         GRIPPER_voidControl();
 
-
-        Key =
-            KPD_u8GetPressed();
-
+        Key = KPD_u8GetPressed();
 
         if(Key == '=')
         {
             break;
         }
+
+        LCD_ShowGripper();
+
+        _delay_ms(100);
     }
 }
 
@@ -694,137 +433,66 @@ static void Control_Gripper(void)
 /* =========================================================
  *                  SAVE POSITION
  *
- * Choose:
+ * Position number:
  *
  * 1 -> Position 1
  * 2 -> Position 2
  * 3 -> Position 3
  * 4 -> Position 4
  * 5 -> Position 5
- *
- * = -> Cancel
  * ========================================================= */
 
-static void Control_SavePosition(void)
+static void Save_Position(void)
 {
     u8 Key;
-    u8 Position;
-
+    u8 PositionNumber;
     u16 BaseAngle;
-    u8 GripperState;
-
 
     LCD_Clear_Screen();
 
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
+    LCD_Send_String((u8*)"SAVE POSITION");
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"SAVE POS 1-5"
-    );
-
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"Choose Number:"
-    );
-
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
+    LCD_Send_String((u8*)"1-5:");
 
     while(1)
     {
-        GRIPPER_voidControl();
-
-
-        Key =
-            KPD_u8GetPressed();
-
+        Key = KPD_u8GetPressed();
 
         if(Key >= '1' && Key <= '5')
         {
-            Position =
+            PositionNumber =
                 Key - '0';
-
 
             BaseAngle =
                 (u16)STEPPER_s16GetCurrentAngle();
 
-
-            /*
-             * IMPORTANT:
-             *
-             * Current Gripper angle is not directly
-             * available in the interface.
-             *
-             * So here:
-             *
-             * 0 = OPEN
-             * 1 = CLOSE
-             *
-             * Change this according to your current
-             * gripper state if needed.
-             */
-
-            GripperState = 0;
-
-
             EEPROM_Position_Save(
-                Position,
+                PositionNumber,
                 Joint1_Angle,
                 Joint2_Angle,
                 Joint3_Angle,
                 BaseAngle,
-                GripperState
+                Gripper_State
             );
-
-
-            LCD_ShowSavePosition(
-                Position
-            );
-
-
-            _delay_ms(700);
-
 
             LCD_Clear_Screen();
 
+            LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
 
-            LCD_GotoXY(
-                CLCD_ROW_1,
-                CLCD_COL_1
-            );
+            LCD_Send_String((u8*)"POSITION ");
 
-            LCD_Send_String(
-                (u8*)"POSITION SAVED"
-            );
+            LCD_Send_Number(PositionNumber);
 
+            LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
 
-            LCD_GotoXY(
-                CLCD_ROW_2,
-                CLCD_COL_1
-            );
-
-            LCD_Send_String(
-                (u8*)"POS: "
-            );
-
-            LCD_Send_Number(
-                Position
-            );
-
+            LCD_Send_String((u8*)"SAVED!");
 
             _delay_ms(1000);
 
-
             break;
         }
-
 
         else if(Key == '=')
         {
@@ -837,7 +505,7 @@ static void Control_SavePosition(void)
 /* =========================================================
  *                  LOAD POSITION
  *
- * Choose:
+ * Select:
  *
  * 1 -> Position 1
  * 2 -> Position 2
@@ -846,104 +514,189 @@ static void Control_SavePosition(void)
  * 5 -> Position 5
  * ========================================================= */
 
-static void Control_LoadPosition(void)
+static void Load_Position(void)
 {
     u8 Key;
-    u8 Position;
+    u8 PositionNumber;
 
     u8 J1;
     u8 J2;
     u8 J3;
 
-    u16 BaseAngle;
+    u16 Base;
 
-    u8 GripperState;
+    u8 Grip;
 
 
     LCD_Clear_Screen();
 
+    LCD_GotoXY(CLCD_ROW_1, CLCD_COL_1);
+    LCD_Send_String((u8*)"LOAD POSITION");
 
-    LCD_GotoXY(
-        CLCD_ROW_1,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"LOAD POS 1-5"
-    );
-
-
-    LCD_GotoXY(
-        CLCD_ROW_2,
-        CLCD_COL_1
-    );
-
-    LCD_Send_String(
-        (u8*)"Choose Number:"
-    );
-
+    LCD_GotoXY(CLCD_ROW_2, CLCD_COL_1);
+    LCD_Send_String((u8*)"1-5:");
 
     while(1)
     {
-        GRIPPER_voidControl();
-
-
-        Key =
-            KPD_u8GetPressed();
-
+        Key = KPD_u8GetPressed();
 
         if(Key >= '1' && Key <= '5')
         {
-            Position =
+            PositionNumber =
                 Key - '0';
 
-
-            LCD_ShowLoadPosition(
-                Position
-            );
-
-
-            _delay_ms(500);
-
+            /* =========================================
+             * READ POSITION FROM EEPROM
+             * ========================================= */
 
             if(
                 EEPROM_Position_Load(
-                    Position,
+                    PositionNumber,
                     &J1,
                     &J2,
                     &J3,
-                    &BaseAngle,
-                    &GripperState
+                    &Base,
+                    &Grip
                 )
-                == 1
             )
             {
-                /*
-                 * Update software state
-                 */
+                /* =====================================
+                 * Update current variables
+                 * ===================================== */
 
                 Joint1_Angle = J1;
                 Joint2_Angle = J2;
                 Joint3_Angle = J3;
 
+                Gripper_State = Grip;
 
-                /*
-                 * Show loaded values
-                 */
 
-                LCD_ShowLoadedPosition(
-                    Position,
-                    J1,
-                    J2,
-                    J3,
-                    BaseAngle
+                /* =====================================
+                 * Move Servos
+                 * ===================================== */
+
+                SERVO_voidSetAngle1(J1);
+
+                SERVO_voidSetAngle2(J2);
+
+                SERVO_voidSetAngle3(J3);
+
+
+                /* =====================================
+                 * Move Base
+                 * ===================================== */
+
+                STEPPER_voidMoveToAngle(
+                    (s16)Base
                 );
+
+
+                /* =====================================
+                 * Move Gripper
+                 * ===================================== */
+
+                if(Grip == 0)
+                {
+                    GRIPPER_voidOpen();
+                }
+                else
+                {
+                    GRIPPER_voidClose();
+                }
+
+
+                /* =====================================
+                 * Show Loaded Position
+                 * ===================================== */
+
+                LCD_Clear_Screen();
+
+                LCD_GotoXY(
+                    CLCD_ROW_1,
+                    CLCD_COL_1
+                );
+
+                LCD_Send_String((u8*)"LOADED P");
+
+                LCD_Send_Number(
+                    PositionNumber
+                );
+
+                LCD_GotoXY(
+                    CLCD_ROW_2,
+                    CLCD_COL_1
+                );
+
+                LCD_Send_String((u8*)"J1:");
+
+                LCD_Send_Number(J1);
+
+                LCD_Send_String((u8*)" J2:");
+
+                LCD_Send_Number(J2);
+
+                _delay_ms(1200);
+
+
+                LCD_Clear_Screen();
+
+                LCD_GotoXY(
+                    CLCD_ROW_1,
+                    CLCD_COL_1
+                );
+
+                LCD_Send_String((u8*)"J3:");
+
+                LCD_Send_Number(J3);
+
+                LCD_Send_String((u8*)" B:");
+
+                LCD_Send_Number(Base);
+
+                LCD_GotoXY(
+                    CLCD_ROW_2,
+                    CLCD_COL_1
+                );
+
+                if(Grip == 0)
+                {
+                    LCD_Send_String((u8*)"GRIP:OPEN");
+                }
+                else
+                {
+                    LCD_Send_String((u8*)"GRIP:CLOSE");
+                }
+
+                _delay_ms(1500);
             }
 
+            else
+            {
+                LCD_Clear_Screen();
+
+                LCD_GotoXY(
+                    CLCD_ROW_1,
+                    CLCD_COL_1
+                );
+
+                LCD_Send_String((u8*)"LOAD ERROR");
+
+                LCD_GotoXY(
+                    CLCD_ROW_2,
+                    CLCD_COL_1
+                );
+
+                LCD_Send_String((u8*)"POSITION ");
+
+                LCD_Send_Number(
+                    PositionNumber
+                );
+
+                _delay_ms(1000);
+            }
 
             break;
         }
-
 
         else if(Key == '=')
         {
@@ -954,7 +707,7 @@ static void Control_LoadPosition(void)
 
 
 /* =========================================================
- *                       MAIN
+ *                         MAIN
  * ========================================================= */
 
 int main(void)
@@ -977,7 +730,7 @@ int main(void)
     GRIPPER_voidInit();
 
 
-    /* Enable Interrupts */
+    /* Enable Global Interrupt */
 
     sei();
 
@@ -992,23 +745,21 @@ int main(void)
 
     Joint3_Angle = 180;
 
+    Gripper_State = 0;
+
 
     SERVO_voidSetAngle1(
         Joint1_Angle
     );
 
-
     SERVO_voidSetAngle2(
         Joint2_Angle
     );
-
 
     SERVO_voidSetAngle3(
         Joint3_Angle
     );
 
-
-    /* Gripper initially OPEN */
 
     GRIPPER_voidOpen();
 
@@ -1019,7 +770,6 @@ int main(void)
 
     LCD_Clear_Screen();
 
-
     LCD_GotoXY(
         CLCD_ROW_1,
         CLCD_COL_1
@@ -1029,48 +779,44 @@ int main(void)
         (u8*)"ROBOT ARM"
     );
 
-
     LCD_GotoXY(
         CLCD_ROW_2,
         CLCD_COL_1
     );
 
     LCD_Send_String(
-        (u8*)"READY..."
+        (u8*)"SYSTEM READY"
     );
-
 
     _delay_ms(1500);
 
 
-    LCD_ShowHome();
-
-
     /* =====================================================
-     * MAIN LOOP
+     * MAIN MENU
+     *
+     * 1 -> J1
+     * 2 -> J2
+     * 3 -> J3
+     * 4 -> BASE
+     * 5 -> GRIPPER
+     * 6 -> STATUS
+     * 7 -> SAVE
+     * 8 -> LOAD
      * ===================================================== */
 
     while(1)
     {
-        /*
-         * Physical Gripper Buttons
-         *
-         * PB0 -> Open
-         * PB1 -> Close
-         */
-
         GRIPPER_voidControl();
 
-
-        /*
-         * Keypad
-         */
+        LCD_ShowHome();
 
         Key =
             KPD_u8GetPressed();
 
 
-        /* J1 */
+        /* =================================================
+         * JOINT 1
+         * ================================================= */
 
         if(Key == '1')
         {
@@ -1080,7 +826,9 @@ int main(void)
         }
 
 
-        /* J2 */
+        /* =================================================
+         * JOINT 2
+         * ================================================= */
 
         else if(Key == '2')
         {
@@ -1090,7 +838,9 @@ int main(void)
         }
 
 
-        /* J3 */
+        /* =================================================
+         * JOINT 3
+         * ================================================= */
 
         else if(Key == '3')
         {
@@ -1100,7 +850,9 @@ int main(void)
         }
 
 
-        /* Base */
+        /* =================================================
+         * BASE
+         * ================================================= */
 
         else if(Key == '4')
         {
@@ -1110,7 +862,9 @@ int main(void)
         }
 
 
-        /* Gripper menu */
+        /* =================================================
+         * GRIPPER
+         * ================================================= */
 
         else if(Key == '5')
         {
@@ -1120,7 +874,9 @@ int main(void)
         }
 
 
-        /* Status */
+        /* =================================================
+         * STATUS
+         * ================================================= */
 
         else if(Key == '6')
         {
@@ -1130,27 +886,31 @@ int main(void)
         }
 
 
-        /* SAVE */
+        /* =================================================
+         * SAVE POSITION
+         * ================================================= */
 
         else if(Key == '7')
         {
-            Control_SavePosition();
+            Save_Position();
 
             LCD_ShowHome();
         }
 
 
-        /* LOAD */
+        /* =================================================
+         * LOAD POSITION
+         * ================================================= */
 
         else if(Key == '8')
         {
-            Control_LoadPosition();
+            Load_Position();
 
             LCD_ShowHome();
         }
 
 
-        _delay_ms(100);
+        _delay_ms(150);
     }
 
 
