@@ -1,6 +1,3 @@
-#ifndef MCAL_TIMER_TIMER_PRIVATE_H_
-#define MCAL_TIMER_TIMER_PRIVATE_H_
-
 #include "../../LIB/STD_TYPES.h"
 
 /* ================= Timer0 Registers ================= */
@@ -33,4 +30,3 @@
 #define TIMSK_Register    *((volatile u8*)0x59)
 #define TIFR_Register     *((volatile u8*)0x58)
 
-#endif

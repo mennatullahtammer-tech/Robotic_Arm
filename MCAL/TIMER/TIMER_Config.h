@@ -1,8 +1,3 @@
-#ifndef MCAL_TIMER_TIMER_CONFIG_H_
-#define MCAL_TIMER_TIMER_CONFIG_H_
-
-/* ================= Timer1 Servo ================= */
-
 #define TIMER1_SERVO_TOP       19999
 
 #define TIMER1_SERVO_MIN       1000
@@ -23,5 +18,3 @@
 #define TIMER2_SERVO3_MIN_TICKS    10
 #define TIMER2_SERVO3_MAX_TICKS    20
 #define TIMER2_SERVO3_PERIOD_TICKS 200
-
-#endif
